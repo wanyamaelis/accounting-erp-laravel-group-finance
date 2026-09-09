@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 use App\Http\Controllers\PortalAccessController;
 use App\Http\Controllers\SaasPremiumBillingController;
+use App\Http\Controllers\InstallerController;
 use Filament\Facades\Filament;
 use Illuminate\Contracts\View\Factory;
 use Illuminate\Foundation\Http\Middleware\ValidateCsrfToken;
@@ -22,6 +23,18 @@ use Illuminate\Support\Facades\Route;
 */
 
 Route::get('/', fn (): Factory|\Illuminate\Contracts\View\View => view('home'))->name('home');
+
+// Installer routes (available only before installation completes)
+Route::prefix('install')->name('installer.')->group(function () {
+    Route::get('/', [InstallerController::class, 'welcome'])->name('welcome');
+    Route::get('/requirements', [InstallerController::class, 'requirements'])->name('requirements');
+    Route::get('/database', [InstallerController::class, 'showDatabase'])->name('database');
+    Route::post('/database', [InstallerController::class, 'testDatabase'])->name('database.test');
+    Route::get('/administrator', [InstallerController::class, 'showAdministrator'])->name('administrator');
+    Route::post('/administrator', [InstallerController::class, 'storeAdministrator'])->name('administrator.store');
+    Route::get('/install', [InstallerController::class, 'install'])->name('install');
+    Route::get('/complete', [InstallerController::class, 'complete'])->name('complete');
+});
 
 Route::middleware('auth')->prefix('billing/premium')->name('billing.premium')->group(function (): void {
     Route::get('/', [SaasPremiumBillingController::class, 'show'])->name('');

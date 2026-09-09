@@ -2,6 +2,7 @@
 
 use App\Http\Middleware\EnsurePremiumAccess;
 use App\Http\Middleware\SecurityHeaders;
+use App\Http\Middleware\RedirectIfNotInstalled;
 use Illuminate\Foundation\Application;
 use Illuminate\Foundation\Configuration\Exceptions;
 use Illuminate\Foundation\Configuration\Middleware;
@@ -18,7 +19,7 @@ return Application::configure(basePath: dirname(__DIR__))
         health: '/up',
     )
     ->withMiddleware(function (Middleware $middleware): void {
-        $middleware->appendToGroup('web', [SetLocale::class, SecurityHeaders::class]);
+        $middleware->appendToGroup('web', [SetLocale::class, SecurityHeaders::class, RedirectIfNotInstalled::class]);
         $middleware->prependToGroup('api', [SecurityHeaders::class]);
         $middleware->alias([
             'ability' => CheckAbilities::class,
