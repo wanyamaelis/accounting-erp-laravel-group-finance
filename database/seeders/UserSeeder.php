@@ -16,12 +16,22 @@ class UserSeeder extends Seeder
      */
     public function run(): void
     {
+        $installerAdmin = config('installer.admin', null);
 
-        $adminPassword = Str::random(12);
+        if (is_array($installerAdmin) && ! empty($installerAdmin['email'])) {
+            $adminEmail = $installerAdmin['email'];
+            $adminName = $installerAdmin['name'] ?? 'Admin User';
+            $adminPassword = $installerAdmin['password'] ?? Str::random(12);
+        } else {
+            $adminEmail = 'admin@example.com';
+            $adminName = 'Admin User';
+            $adminPassword = Str::random(12);
+        }
+
         $adminUser = User::updateOrCreate(
-            ['email' => 'admin@example.com'],
+            ['email' => $adminEmail],
             [
-                'name' => 'Admin User',
+                'name' => $adminName,
                 'password' => Hash::make($adminPassword),
                 'email_verified_at' => now(),
             ],
@@ -35,7 +45,9 @@ class UserSeeder extends Seeder
         $role = Role::where('name', 'super_admin')->firstOrFail();
         $adminUser->assignRole($role);
 
-        // Print passwords to console
-        echo "Admin password: {$adminPassword}\n";
+        // Only echo password when seeding via CLI and installer didn't supply it
+        if (! is_array($installerAdmin) || empty($installerAdmin['password'])) {
+            echo "Admin password: {$adminPassword}\n";
+        }
     }
 }
